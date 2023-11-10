@@ -15,7 +15,7 @@ import numpy as np
 import json
 
 
-def read_json_file(json_file):
+def read_json_file(json_file: str) -> dict:
     """
     Read the json file and return the dictionary containing the data
     :param json_file: json file to read
@@ -26,7 +26,7 @@ def read_json_file(json_file):
     return data
 
 
-def get_frame_data(data, frame_number):
+def get_frame_data(data: dict, frame_number: int) -> dict:
     """
     Get the data of a specific frame
     :param data: dictionary containing the data
