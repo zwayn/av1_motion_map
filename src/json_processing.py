@@ -24,3 +24,13 @@ def read_json_file(json_file):
     with open(json_file, "r") as file:
         data = json.loads(file.read())
     return data
+
+
+def get_frame_data(data, frame_number):
+    """
+    Get the data of a specific frame
+    :param data: dictionary containing the data
+    :param frame_number: frame number
+    :return: dictionary containing the data of the frame
+    """
+    return data[frame_number]
