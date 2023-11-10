@@ -1,5 +1,5 @@
 """
- start.py
+ json_processing.py
 
   Created by Julien Zouein on 10/11/2023.
   Copyright © 2023 Sigmedia.tv. All rights reserved.
@@ -65,7 +65,7 @@ def get_frame_motion_vectors(frame_data: dict) -> Tuple[np.ndarray, np.ndarray]:
     w = len(motion_vectors[0])
 
     result = np.zeros((h*4, w*4, 2), dtype=np.float32)
-    mask = np.zeros((h*4, w*4, 3), dtype=np.float32)
+    intensity = np.zeros((h*4, w*4, 3), dtype=np.float32)
 
     for i in range(0, h-1):
         for j in range(0, w-1):
@@ -76,6 +76,9 @@ def get_frame_motion_vectors(frame_data: dict) -> Tuple[np.ndarray, np.ndarray]:
             result[i*4:(i+1)*4, j*4:(j+1)*4, 0] = vector_h
             result[i*4:(i+1)*4, j*4:(j+1)*4, 1] = vector_w
 
-            mask[i*4:(i+1)*4, j*4:(j+1)*4] = (vector_w + vector_h)/2
+            intensity[i*4:(i+1)*4, j*4:(j+1)*4] = (vector_w + vector_h)/2
 
-    return result, mask
+    intensity = intensity*255
+    intensity = intensity.astype(np.uint8)
+
+    return result, intensity
