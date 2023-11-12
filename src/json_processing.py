@@ -73,8 +73,8 @@ def get_frame_motion_vectors(frame_data: dict) -> Tuple[np.ndarray, np.ndarray]:
             vector_h = (motion_vectors[i][j][0])/8
             vector_w = (motion_vectors[i][j][1])/8
 
-            result[i*4:(i+1)*4, j*4:(j+1)*4, 0] = vector_h
-            result[i*4:(i+1)*4, j*4:(j+1)*4, 1] = vector_w
+            result[i*4:(i+1)*4, j*4:(j+1)*4, 0] = vector_w
+            result[i*4:(i+1)*4, j*4:(j+1)*4, 1] = vector_h
 
             intensity[i*4:(i+1)*4, j*4:(j+1)*4] = (vector_w + vector_h)/2
 
