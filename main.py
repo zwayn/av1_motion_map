@@ -59,6 +59,12 @@ parser.add(
     type=int,
     help="fps of the input video.",
 )
+parser.add(
+    "--video",
+    required=True,
+    type=str,
+    help="path to the input video.",
+)
 
 arg_flags = parser.parse_args()
 
@@ -77,6 +83,11 @@ if __name__ == "__main__":
     os.makedirs(f"output/results/{arg_flags.input}/pngs/reference", exist_ok=True)
     os.makedirs(f"output/results/{arg_flags.input}/pngs/mv", exist_ok=True)
     os.makedirs(f"output/results/{arg_flags.input}/npy", exist_ok=True)
+    os.makedirs(f"output/results/{arg_flags.input}/stack", exist_ok=True)
+
+    cap = cv2.VideoCapture(arg_flags.video)
+    if not cap.isOpened():
+        print("Error opening video stream or file")
 
     results = []
 
@@ -89,6 +100,10 @@ if __name__ == "__main__":
 
     for cursor in tqdm(range(1, total_frames-1)):
 
+        ret, frame = cap.read()
+
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2YCrCb)
+
         frame_data = get_frame_data(json_file, cursor)
         motion_field, motion_intensity = get_frame_motion_vectors(frame_data)
         reference_map = get_frame_reference(frame_data)
@@ -99,9 +114,19 @@ if __name__ == "__main__":
 
         mv_rgb = flowpy.flow_to_rgb(motion_field)
 
+        stack = np.zeros((arg_flags.height, arg_flags.width, 3), dtype=np.float32)
+
+        stack[:, :, 0] = frame[:, :, 0]/255.
+        stack[:, :, 1] = motion_field[:, :, 0]
+        stack[:, :, 2] = motion_field[:, :, 1]
+
+        cv2.imshow("stack", cv2.cvtColor(stack, cv2.COLOR_YCrCb2BGR))
+        cv2.waitKey(10)
+
         cv2.imwrite(f"output/results/{arg_flags.input}/pngs/intensity/{cursor}_motion_intensity.png", motion_intensity)
         cv2.imwrite(f"output/results/{arg_flags.input}/pngs/reference/{cursor}_reference_map.png", reference_map)
         cv2.imwrite(f"output/results/{arg_flags.input}/pngs/mv/{cursor}_motion_field.png", mv_rgb)
         np.save(f"output/results/{arg_flags.input}/npy/{cursor}_motion_field.npy", motion_field)
+        np.save(f"output/results/{arg_flags.input}/stack/{cursor}_reference_map.npy", stack)
 
     cv2.destroyAllWindows()
