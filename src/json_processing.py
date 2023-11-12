@@ -46,20 +46,6 @@ def get_frame_motion_vectors(frame_data: dict) -> Tuple[np.ndarray, np.ndarray]:
     """
 
     motion_vectors = frame_data["motionVectors"]
-    h = len(motion_vectors)
-    w = len(motion_vectors[0])
-
-    # Create the numpy array
-    motion_field = np.zeros((h*4, w*4, 2), dtype=np.float32)
-
-    for i in range(0, h-1):
-        for j in range(0, w-1):
-
-            vector_h = (motion_vectors[i][j][0])/8
-            vector_w = (motion_vectors[i][j][1])/8
-
-            motion_field[i*4:(i+1)*4, j*4:(j+1)*4, 0] = vector_h
-            motion_field[i*4:(i+1)*4, j*4:(j+1)*4, 1] = vector_w
 
     h = len(motion_vectors)
     w = len(motion_vectors[0])
