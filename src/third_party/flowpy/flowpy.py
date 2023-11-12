@@ -76,8 +76,8 @@ def flow_to_rgb(flow, flow_max_radius=None, background="bright", custom_colorwhe
     # Interpolate the hues
     (angle_fractional, angle_floor), angle_ceil = np.modf(angle), np.ceil(angle)
     angle_fractional = angle_fractional.reshape((angle_fractional.shape) + (1,))
-    float_hue = (wheel[angle_floor.astype(np.int)] * (1 - angle_fractional) +
-                 wheel[angle_ceil.astype(np.int)] * angle_fractional)
+    float_hue = (wheel[angle_floor.astype(int)] * (1 - angle_fractional) +
+                 wheel[angle_ceil.astype(int)] * angle_fractional)
 
     ColorizationArgs = namedtuple("ColorizationArgs", [
         'move_hue_valid_radius',
@@ -92,10 +92,10 @@ def flow_to_rgb(flow, flow_max_radius=None, background="bright", custom_colorwhe
 
     if background == "dark":
         parameters = ColorizationArgs(move_hue_on_V_axis, move_hue_on_S_axis,
-                                      np.array([255, 255, 255], dtype=np.float))
+                                      np.array([255, 255, 255], dtype=float))
     else:
         parameters = ColorizationArgs(move_hue_on_S_axis, move_hue_on_V_axis,
-                                      np.array([0, 0, 0], dtype=np.float))
+                                      np.array([0, 0, 0], dtype=float))
 
     colors = parameters.move_hue_valid_radius(float_hue, radius)
 
