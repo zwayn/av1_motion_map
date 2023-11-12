@@ -8,4 +8,4 @@ fps=$5
 
 ./src/enc_scenario/s3-scc-01.sh $input $output $width $height $fps
 ./aom_build/examples/inspect output/ivf/$output.ivf -mv -r > output/json/$output.json
-python3.10 main.py --input $output
+python3.10 main.py --input $output --height $height --width $width --fps $fps
