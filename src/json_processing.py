@@ -82,3 +82,24 @@ def get_frame_motion_vectors(frame_data: dict) -> Tuple[np.ndarray, np.ndarray]:
     intensity = intensity.astype(np.uint8)
 
     return result, intensity
+
+
+def get_frame_reference(frame_data: dict) -> np.ndarray:
+    """Get the reference frames used for each block in a specific frame
+
+    :param frame_data: dictionary containing the data of the frame
+    :return: numpy array containing the reference frame
+    """
+    reference_frames = frame_data["referenceFrame"]
+
+    h = len(reference_frames)
+    w = len(reference_frames[0])
+
+    result = np.zeros((h*4, w*4, 1), dtype=np.float32)
+
+    for i in range(0, h-1):
+        for j in range(0, w-1):
+
+            result[i*4:(i+1)*4, j*4:(j+1)*4, 0] = reference_frames[i][j][0]/7
+
+    return result

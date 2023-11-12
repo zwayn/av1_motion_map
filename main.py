@@ -95,7 +95,6 @@ if __name__ == "__main__":
         motion_intensity = motion_intensity[0:arg_flags.height, 0:arg_flags.width]
         reference_map = reference_map[0:arg_flags.height, 0:arg_flags.width]
 
-        cv2.imwrite(f"output/results/{arg_flags.input}/pngs/{cursor}_motion_intensity.png", motion_intensity)
         cv2.imwrite(f"output/results/{arg_flags.input}/pngs/intensity/{cursor}_motion_intensity.png", motion_intensity)
         cv2.imwrite(f"output/results/{arg_flags.input}/pngs/reference/{cursor}_reference_map.png", reference_map)
         np.save(f"output/results/{arg_flags.input}/npy/{cursor}_motion_field.npy", motion_field)
