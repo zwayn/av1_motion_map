@@ -20,6 +20,7 @@ from src.json_processing import get_frame_data
 from src.json_processing import get_frame_motion_vectors
 from src.json_processing import get_frame_reference
 from src.json_processing import read_json_file
+from src.third_party import flowpy
 
 parser = configargparse.ArgParser()
 parser.add(
@@ -74,6 +75,7 @@ if __name__ == "__main__":
     os.makedirs(f"output/results/{arg_flags.input}/pngs", exist_ok=True)
     os.makedirs(f"output/results/{arg_flags.input}/pngs/intensity", exist_ok=True)
     os.makedirs(f"output/results/{arg_flags.input}/pngs/reference", exist_ok=True)
+    os.makedirs(f"output/results/{arg_flags.input}/pngs/mv", exist_ok=True)
     os.makedirs(f"output/results/{arg_flags.input}/npy", exist_ok=True)
 
     results = []
@@ -95,8 +97,11 @@ if __name__ == "__main__":
         motion_intensity = motion_intensity[0:arg_flags.height, 0:arg_flags.width]
         reference_map = reference_map[0:arg_flags.height, 0:arg_flags.width]
 
+        mv_rgb = flowpy.flow_to_rgb(motion_field)
+
         cv2.imwrite(f"output/results/{arg_flags.input}/pngs/intensity/{cursor}_motion_intensity.png", motion_intensity)
         cv2.imwrite(f"output/results/{arg_flags.input}/pngs/reference/{cursor}_reference_map.png", reference_map)
+        cv2.imwrite(f"output/results/{arg_flags.input}/pngs/mv/{cursor}_motion_field.png", mv_rgb)
         np.save(f"output/results/{arg_flags.input}/npy/{cursor}_motion_field.npy", motion_field)
 
     cv2.destroyAllWindows()
