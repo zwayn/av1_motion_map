@@ -39,6 +39,24 @@ parser.add(
     required=True,
     help="name of the input file.",
 )
+parser.add(
+    "--height",
+    required=True,
+    type=int,
+    help="height of the input video.",
+)
+parser.add(
+    "--width",
+    required=True,
+    type=int,
+    help="width of the input video.",
+)
+parser.add(
+    "--fps",
+    required=True,
+    type=int,
+    help="fps of the input video.",
+)
 
 arg_flags = parser.parse_args()
 
@@ -68,6 +86,9 @@ if __name__ == "__main__":
 
         frame_data = get_frame_data(json_file, cursor)
         motion_field, motion_intensity = get_frame_motion_vectors(frame_data)
+
+        motion_field = motion_field[0:arg_flags.height, 0:arg_flags.width]
+        motion_intensity = motion_intensity[0:arg_flags.height, 0:arg_flags.width]
 
         cv2.imwrite(f"output/results/{arg_flags.input}/pngs/{cursor}_motion_intensity.png", motion_intensity)
         np.save(f"output/results/{arg_flags.input}/npy/{cursor}_motion_field.npy", motion_field)
