@@ -65,6 +65,12 @@ parser.add(
     type=str,
     help="path to the input video.",
 )
+parser.add(
+    "--GOP",
+    required=True,
+    type=str,
+    help="path to the input video.",
+)
 
 arg_flags = parser.parse_args()
 
