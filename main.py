@@ -115,8 +115,11 @@ if __name__ == "__main__":
         reference_dict, golden_frames = reference_mapping(cursor, int(arg_flags.GOP), 0, golden_frames)
 
         frame_data = get_frame_data(json_file, cursor)
-        motion_field, motion_intensity = get_frame_motion_vectors(frame_data)
-        reference_map = get_frame_reference(frame_data)
+        motion_field, motion_field_projection, reference_map = get_frame_motion_vectors(
+            frame_data,
+            reference_dict,
+            cursor
+        )
 
         motion_field = motion_field[0:arg_flags.height, 0:arg_flags.width]
         motion_field_projection = motion_field_projection[0:arg_flags.height, 0:arg_flags.width]
