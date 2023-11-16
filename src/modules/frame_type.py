@@ -33,7 +33,6 @@ def golden_management(golden_list, golden_number, keyframe, reset=False):
         golden_list.append(golden_number)
         return golden_list
 
-
     if (len(golden_list) == 4) and (keyframe in golden_list):
         golden_list.append(golden_number)
         golden_list.pop(0)
@@ -42,7 +41,6 @@ def golden_management(golden_list, golden_number, keyframe, reset=False):
     golden_list.append(golden_number)
 
     return golden_list
-
 
 
 def reference_mapping(frame_number: int, gop_size: int, last_keyframe: int, golden_list: list) -> tuple:
