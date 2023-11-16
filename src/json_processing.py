@@ -37,37 +37,51 @@ def get_frame_data(data: dict, frame_number: int) -> dict:
     return data[frame_number]
 
 
-def get_frame_motion_vectors(frame_data: dict) -> Tuple[np.ndarray, np.ndarray]:
+def get_frame_motion_vectors(
+        frame_data: dict,
+        reference_dict: dict,
+        frame_number: int
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Get the motion vector map of a specific frame and the motion intensity map.
     :param frame_data: dictionary containing the data of the frame
+    :param reference_dict: dictionary containing the mapping of the reference frames
+    :param frame_number: Frame number
     :return: a 2-channels numpy array creating the vector motion field
-    :return: a greyscale numpy array displaying the intensity of the motion
     """
 
     motion_vectors = frame_data["motionVectors"]
+    reference_frames = frame_data["referenceFrame"]
 
     h = len(motion_vectors)
     w = len(motion_vectors[0])
 
-    result = np.zeros((h*4, w*4, 2), dtype=np.float32)
-    intensity = np.zeros((h*4, w*4, 3), dtype=np.float32)
+    motion_map = np.zeros((h*4, w*4, 2), dtype=np.float32)
+    motion_map_projection = np.zeros((h * 4, w * 4, 2), dtype=np.float32)
+    reference_map = np.zeros((h*4, w*4, 1), dtype=np.float32)
 
     for i in range(0, h-1):
         for j in range(0, w-1):
 
-            vector_h = (motion_vectors[i][j][0])/8
-            vector_w = (motion_vectors[i][j][1])/8
+            vector_h = -(motion_vectors[i][j][0])/16
+            vector_w = -(motion_vectors[i][j][1])/16
 
-            result[i*4:(i+1)*4, j*4:(j+1)*4, 0] = -vector_w
-            result[i*4:(i+1)*4, j*4:(j+1)*4, 1] = -vector_h
+            motion_map[i*4:(i+1)*4, j*4:(j+1)*4, 0] = vector_w
+            motion_map[i*4:(i+1)*4, j*4:(j+1)*4, 1] = vector_h
 
-            intensity[i*4:(i+1)*4, j*4:(j+1)*4] = (vector_w + vector_h)/2
+            reference_map[i * 4:(i + 1) * 4, j * 4:(j + 1) * 4, 0] = reference_frames[i][j][0] / 7
 
-    intensity = intensity*255
-    intensity = intensity.astype(np.uint8)
+            reference_frame = reference_frames[i][j][0]
+            reference_frame_number = reference_dict[reference_frame]
+            distance = frame_number - reference_frame_number
 
-    return result, intensity
+            motion_map_projection[i * 4:(i + 1) * 4, j * 4:(j + 1) * 4, 0] = vector_w / distance
+            motion_map_projection[i * 4:(i + 1) * 4, j * 4:(j + 1) * 4, 1] = vector_h / distance
+
+    reference_map = reference_map * 255
+    reference_map = reference_map.astype(np.uint8)
+
+    return motion_map, motion_map_projection, reference_map
 
 
 def get_frame_reference(frame_data: dict) -> np.ndarray:
