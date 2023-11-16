@@ -20,6 +20,7 @@ from src.json_processing import get_frame_data
 from src.json_processing import get_frame_motion_vectors
 from src.json_processing import get_frame_reference
 from src.json_processing import read_json_file
+from src.modules.frame_type import reference_mapping
 from src.third_party import flowpy
 
 parser = configargparse.ArgParser()
@@ -85,7 +86,7 @@ if __name__ == "__main__":
 
     os.makedirs(f"output/results/{arg_flags.input}", exist_ok=True)
     os.makedirs(f"output/results/{arg_flags.input}/pngs", exist_ok=True)
-    os.makedirs(f"output/results/{arg_flags.input}/pngs/intensity", exist_ok=True)
+    os.makedirs(f"output/results/{arg_flags.input}/pngs/projection", exist_ok=True)
     os.makedirs(f"output/results/{arg_flags.input}/pngs/reference", exist_ok=True)
     os.makedirs(f"output/results/{arg_flags.input}/pngs/mv", exist_ok=True)
     os.makedirs(f"output/results/{arg_flags.input}/npy", exist_ok=True)
@@ -104,21 +105,25 @@ if __name__ == "__main__":
     w = len(json_file[0]['motionVectors'][0])*4
     h = len(json_file[0]['motionVectors'])*4
 
+    reference_dict, golden_frames = reference_mapping(0, arg_flags.GOP, 0, [])
+
     for cursor in tqdm(range(1, total_frames-1)):
 
         ret, frame = cap.read()
 
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2YCrCb)
+        reference_dict, golden_frames = reference_mapping(cursor, int(arg_flags.GOP), 0, golden_frames)
 
         frame_data = get_frame_data(json_file, cursor)
         motion_field, motion_intensity = get_frame_motion_vectors(frame_data)
         reference_map = get_frame_reference(frame_data)
 
         motion_field = motion_field[0:arg_flags.height, 0:arg_flags.width]
-        motion_intensity = motion_intensity[0:arg_flags.height, 0:arg_flags.width]
+        motion_field_projection = motion_field_projection[0:arg_flags.height, 0:arg_flags.width]
         reference_map = reference_map[0:arg_flags.height, 0:arg_flags.width]
 
         mv_rgb = flowpy.flow_to_rgb(motion_field)
+        proj_rgb = flowpy.flow_to_rgb(motion_field_projection)
 
         stack = np.zeros((arg_flags.height, arg_flags.width, 3), dtype=np.float32)
 
@@ -126,10 +131,10 @@ if __name__ == "__main__":
         stack[:, :, 1] = motion_field[:, :, 0]
         stack[:, :, 2] = motion_field[:, :, 1]
 
-        cv2.imshow("stack", cv2.cvtColor(stack, cv2.COLOR_YCrCb2BGR))
+        cv2.imshow("stack", proj_rgb)
         cv2.waitKey(10)
 
-        cv2.imwrite(f"output/results/{arg_flags.input}/pngs/intensity/{cursor}_motion_intensity.png", motion_intensity)
+        cv2.imwrite(f"output/results/{arg_flags.input}/pngs/projection/{cursor}_motion_projection.png", proj_rgb)
         cv2.imwrite(f"output/results/{arg_flags.input}/pngs/reference/{cursor}_reference_map.png", reference_map)
         cv2.imwrite(f"output/results/{arg_flags.input}/pngs/mv/{cursor}_motion_field.png", mv_rgb)
         np.save(f"output/results/{arg_flags.input}/npy/{cursor}_motion_field.npy", motion_field)
