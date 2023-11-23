@@ -52,7 +52,7 @@ def reference_mapping(frame_number: int, gop_size: int, last_keyframe: int, gold
     :param golden_list: List of golden frames.
     :return: Dictionary of frame number for the reference frames at a given time.
     """
-    dict = {
+    dict_reference = {
         0: last_keyframe,
         1: last_keyframe,
         2: last_keyframe,
@@ -64,13 +64,13 @@ def reference_mapping(frame_number: int, gop_size: int, last_keyframe: int, gold
     }
     if frame_number == last_keyframe:
         golden_list = golden_management(golden_list, last_keyframe, last_keyframe, reset=True)
-        return dict, golden_list
+        return dict_reference, golden_list
 
     gf_number = (frame_number-last_keyframe) / (gop_size/2)
 
     if gf_number <= 1:
 
-        dict = {
+        dict_reference = {
             0: last_keyframe,
             1: max(last_keyframe, frame_number - 1),
             2: max(last_keyframe, frame_number - 2),
@@ -81,7 +81,7 @@ def reference_mapping(frame_number: int, gop_size: int, last_keyframe: int, gold
             7: max(last_keyframe, frame_number - 6),
         }
 
-        return dict, golden_list
+        return dict_reference, golden_list
 
     if (frame_number - 1) % (gop_size / 2) == 0:
         golden_list = golden_management(golden_list, frame_number - 1, last_keyframe)
@@ -98,7 +98,7 @@ def reference_mapping(frame_number: int, gop_size: int, last_keyframe: int, gold
                 last_number = new_number
             number.append(last_number)
 
-        dict = {
+        dict_reference = {
             0: last_keyframe,
             1: number[0],
             2: number[1],
@@ -120,7 +120,7 @@ def reference_mapping(frame_number: int, gop_size: int, last_keyframe: int, gold
             else:
                 last_number = new_number
             number.append(last_number)
-        dict = {
+        dict_reference = {
             0: last_keyframe,
             1: number[0],
             2: number[1],
@@ -142,7 +142,7 @@ def reference_mapping(frame_number: int, gop_size: int, last_keyframe: int, gold
             else:
                 last_number = new_number
             number.append(last_number)
-        dict = {
+        dict_reference = {
             0: last_keyframe,
             1: number[0],
             2: number[1],
@@ -164,7 +164,7 @@ def reference_mapping(frame_number: int, gop_size: int, last_keyframe: int, gold
             else:
                 last_number = new_number
             number.append(last_number)
-        dict = {
+        dict_reference = {
             0: last_keyframe,
             1: number[0],
             2: number[1],
@@ -189,7 +189,7 @@ def reference_mapping(frame_number: int, gop_size: int, last_keyframe: int, gold
                     last_number = new_number
                 number.append(last_number)
 
-            dict = {
+            dict_reference = {
                 0: last_keyframe,
                 1: number[0],
                 2: number[1],
@@ -214,7 +214,7 @@ def reference_mapping(frame_number: int, gop_size: int, last_keyframe: int, gold
                     last_number = new_number
                 number.append(last_number)
 
-            dict = {
+            dict_reference = {
                 0: last_keyframe,
                 1: number[0],
                 2: number[1],
@@ -225,4 +225,4 @@ def reference_mapping(frame_number: int, gop_size: int, last_keyframe: int, gold
                 7: golden_list[0],
             }
 
-    return dict, golden_list
+    return dict_reference, golden_list
