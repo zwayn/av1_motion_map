@@ -11,108 +11,43 @@ Main python file calling all the functions.
 
 import os
 
-import configargparse
 import cv2
 import numpy as np
 from tqdm import tqdm
 
 from src.json_processing import get_frame_data
 from src.json_processing import get_frame_motion_vectors
-from src.json_processing import get_frame_reference
 from src.json_processing import read_json_file
 from src.modules.frame_type import reference_mapping
 from src.third_party import flowpy
 
-parser = configargparse.ArgParser()
-parser.add(
-    "--config",
-    required=False,
-    is_config_file=True,
-    help="Config file path."
-)
-parser.add(
-    "--version",
-    required=False,
-    default=False,
-    action="store_true",
-    help="Display the version of the Software.",
-)
-parser.add(
-    "--input",
-    required=True,
-    help="name of the input file.",
-)
-parser.add(
-    "--height",
-    required=True,
-    type=int,
-    help="height of the input video.",
-)
-parser.add(
-    "--width",
-    required=True,
-    type=int,
-    help="width of the input video.",
-)
-parser.add(
-    "--fps",
-    required=True,
-    type=int,
-    help="fps of the input video.",
-)
-parser.add(
-    "--video",
-    required=True,
-    type=str,
-    help="path to the input video.",
-)
-parser.add(
-    "--GOP",
-    required=True,
-    type=str,
-    help="path to the input video.",
-)
 
-arg_flags = parser.parse_args()
+def main(gop, file, video, width, height):
 
-version = "0.1.0"
+    os.makedirs(f"output/results/{file}", exist_ok=True)
+    os.makedirs(f"output/results/{file}/pngs", exist_ok=True)
+    os.makedirs(f"output/results/{file}/pngs/projection", exist_ok=True)
+    os.makedirs(f"output/results/{file}/pngs/reference", exist_ok=True)
+    os.makedirs(f"output/results/{file}/pngs/mv", exist_ok=True)
+    os.makedirs(f"output/results/{file}/npy", exist_ok=True)
+    os.makedirs(f"output/results/{file}/stack", exist_ok=True)
 
-if __name__ == "__main__":
-
-    if arg_flags.version:
-
-        print(version)
-        exit()
-
-    os.makedirs(f"output/results/{arg_flags.input}", exist_ok=True)
-    os.makedirs(f"output/results/{arg_flags.input}/pngs", exist_ok=True)
-    os.makedirs(f"output/results/{arg_flags.input}/pngs/projection", exist_ok=True)
-    os.makedirs(f"output/results/{arg_flags.input}/pngs/reference", exist_ok=True)
-    os.makedirs(f"output/results/{arg_flags.input}/pngs/mv", exist_ok=True)
-    os.makedirs(f"output/results/{arg_flags.input}/npy", exist_ok=True)
-    os.makedirs(f"output/results/{arg_flags.input}/stack", exist_ok=True)
-
-    cap = cv2.VideoCapture(arg_flags.video)
+    cap = cv2.VideoCapture(video)
     if not cap.isOpened():
         print("Error opening video stream or file")
 
-    results = []
-
-    json_file = read_json_file(f"output/json/{arg_flags.input}.json")
+    json_file = read_json_file(f"output/json/{file}.json")
 
     total_frames = len(json_file)
 
-    w = len(json_file[0]['motionVectors'][0])*4
-    h = len(json_file[0]['motionVectors'])*4
-
-    reference_dict, golden_frames = reference_mapping(0, arg_flags.GOP, 0, [])
+    reference_dict, golden_frames = reference_mapping(0, gop, 0, [])
 
     for cursor in tqdm(range(1, total_frames-1)):
 
         ret, frame = cap.read()
 
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2YCrCb)
-        reference_dict, golden_frames = reference_mapping(cursor, int(arg_flags.GOP), 0, golden_frames)
+        reference_dict, golden_frames = reference_mapping(cursor, int(gop), 0, golden_frames)
 
         frame_data = get_frame_data(json_file, cursor)
         motion_field, motion_field_projection, reference_map = get_frame_motion_vectors(
@@ -121,14 +56,14 @@ if __name__ == "__main__":
             cursor
         )
 
-        motion_field = motion_field[0:arg_flags.height, 0:arg_flags.width]
-        motion_field_projection = motion_field_projection[0:arg_flags.height, 0:arg_flags.width]
-        reference_map = reference_map[0:arg_flags.height, 0:arg_flags.width]
+        motion_field = motion_field[0:height, 0:width]
+        motion_field_projection = motion_field_projection[0:height, 0:width]
+        reference_map = reference_map[0:height, 0:width]
 
         mv_rgb = flowpy.flow_to_rgb(motion_field)
         proj_rgb = flowpy.flow_to_rgb(motion_field_projection)
 
-        stack = np.zeros((arg_flags.height, arg_flags.width, 3), dtype=np.float32)
+        stack = np.zeros((height, width, 3), dtype=np.float32)
 
         stack[:, :, 0] = frame[:, :, 0]/255.
         stack[:, :, 1] = motion_field[:, :, 0]
@@ -137,10 +72,10 @@ if __name__ == "__main__":
         cv2.imshow("stack", proj_rgb)
         cv2.waitKey(10)
 
-        cv2.imwrite(f"output/results/{arg_flags.input}/pngs/projection/{cursor}_motion_projection.png", proj_rgb)
-        cv2.imwrite(f"output/results/{arg_flags.input}/pngs/reference/{cursor}_reference_map.png", reference_map)
-        cv2.imwrite(f"output/results/{arg_flags.input}/pngs/mv/{cursor}_motion_field.png", mv_rgb)
-        np.save(f"output/results/{arg_flags.input}/npy/{cursor}_motion_field.npy", motion_field)
-        np.save(f"output/results/{arg_flags.input}/stack/{cursor}_reference_map.npy", stack)
+        cv2.imwrite(f"output/results/{file}/pngs/projection/{cursor}_motion_projection.png", proj_rgb)
+        cv2.imwrite(f"output/results/{file}/pngs/reference/{cursor}_reference_map.png", reference_map)
+        cv2.imwrite(f"output/results/{file}/pngs/mv/{cursor}_motion_field.png", mv_rgb)
+        np.save(f"output/results/{file}/npy/{cursor}_motion_field.npy", motion_field)
+        np.save(f"output/results/{file}/stack/{cursor}_reference_map.npy", stack)
 
     cv2.destroyAllWindows()
