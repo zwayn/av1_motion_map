@@ -63,8 +63,8 @@ def get_frame_motion_vectors(
     for i in range(0, h-1):
         for j in range(0, w-1):
 
-            vector_h = -(motion_vectors[i][j][0])/16
-            vector_w = -(motion_vectors[i][j][1])/16
+            vector_h = motion_vectors[i][j][0]/16
+            vector_w = motion_vectors[i][j][1]/16
 
             motion_map[i*4:(i+1)*4, j*4:(j+1)*4, 0] = vector_w
             motion_map[i*4:(i+1)*4, j*4:(j+1)*4, 1] = vector_h
