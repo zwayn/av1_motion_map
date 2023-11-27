@@ -111,14 +111,16 @@ if __name__ == "__main__":
 
         if arg_flags.forward:
             direction = -1
+            start = -1
         else:
             direction = 1
+            start = 0
 
         frame_list = get_paths(file_path)
 
         for cursor in range(0, len(frame_list), arg_flags.frame_step):
 
-            frame_id = cursor * direction
+            frame_id = start + (cursor * direction)
 
             shutil.copyfile(frame_list[frame_id], f"./tmp/frame_{str(cursor).zfill(6)}.png")
 
