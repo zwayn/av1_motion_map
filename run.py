@@ -148,7 +148,7 @@ if __name__ == "__main__":
         command = f"./aom_build/examples/inspect ./output/ivf/{name}.ivf -mv -r > ./output/json/{name}.json"
         subprocess.run(command, shell=True)
 
-        main(arg_flags.gop, name, f"./tmp/{name}.y4m", w, h)
+        main(arg_flags.gop, name, f"./tmp/{name}.y4m", w, h, arg_flags.forward)
 
         subprocess.run("rm -rf ./tmp/*", shell=True)
 
