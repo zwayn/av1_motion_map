@@ -22,7 +22,7 @@ from src.modules.frame_type import reference_mapping
 from src.third_party import flowpy
 
 
-def main(gop, file, video, width, height):
+def main(gop, file, video, width, height, forward):
 
     os.makedirs(f"output/results/{file}", exist_ok=True)
     os.makedirs(f"output/results/{file}/pngs", exist_ok=True)
@@ -30,6 +30,8 @@ def main(gop, file, video, width, height):
     os.makedirs(f"output/results/{file}/pngs/reference", exist_ok=True)
     os.makedirs(f"output/results/{file}/pngs/mv", exist_ok=True)
     os.makedirs(f"output/results/{file}/npy", exist_ok=True)
+    os.makedirs(f"output/results/{file}/npy/mv", exist_ok=True)
+    os.makedirs(f"output/results/{file}/npy/mv_proj", exist_ok=True)
     os.makedirs(f"output/results/{file}/stack", exist_ok=True)
 
     cap = cv2.VideoCapture(video)
@@ -66,16 +68,23 @@ def main(gop, file, video, width, height):
         stack = np.zeros((height, width, 3), dtype=np.float32)
 
         stack[:, :, 0] = frame[:, :, 0]/255.
-        stack[:, :, 1] = motion_field[:, :, 0]
-        stack[:, :, 2] = motion_field[:, :, 1]
+        stack[:, :, 1] = motion_field_projection[:, :, 0]
+        stack[:, :, 2] = motion_field_projection[:, :, 1]
 
-        cv2.imshow("stack", proj_rgb)
+        cv2.imshow(file, proj_rgb)
         cv2.waitKey(10)
 
-        cv2.imwrite(f"output/results/{file}/pngs/projection/{cursor}_motion_projection.png", proj_rgb)
-        cv2.imwrite(f"output/results/{file}/pngs/reference/{cursor}_reference_map.png", reference_map)
-        cv2.imwrite(f"output/results/{file}/pngs/mv/{cursor}_motion_field.png", mv_rgb)
-        np.save(f"output/results/{file}/npy/{cursor}_motion_field.npy", motion_field)
-        np.save(f"output/results/{file}/stack/{cursor}_reference_map.npy", stack)
+        if forward:
+            frame_id = total_frames - 1 - cursor
+
+        else:
+            frame_id = cursor
+
+        cv2.imwrite(f"output/results/{file}/pngs/projection/{frame_id}_motion_projection.png", proj_rgb)
+        cv2.imwrite(f"output/results/{file}/pngs/reference/{frame_id}_reference_map.png", reference_map)
+        cv2.imwrite(f"output/results/{file}/pngs/mv/{frame_id}_motion_field.png", mv_rgb)
+        np.save(f"output/results/{file}/npy/mv/{frame_id}_motion_field.npy", motion_field)
+        np.save(f"output/results/{file}/npy/mv_proj/{frame_id}_motion_field_projection.npy", motion_field_projection)
+        np.save(f"output/results/{file}/stack/{frame_id}_reference_map.npy", stack)
 
     cv2.destroyAllWindows()
