@@ -23,7 +23,7 @@ from src.modules.utils import update_stack
 from src.third_party import flowpy
 
 
-def main(gop, file, video, width, height, forward, dataset, layers, step, encoding_preset):
+def main(gop, file, video, width, height, forward, dataset, layers, step, encoding_preset, display):
 
     os.makedirs(f"output/results/{file}", exist_ok=True)
     os.makedirs(f"output/results/{file}/pngs", exist_ok=True)
@@ -104,8 +104,9 @@ def main(gop, file, video, width, height, forward, dataset, layers, step, encodi
         stack[:, :, 1] = motion_field_projection[:, :, 0]
         stack[:, :, 2] = motion_field_projection[:, :, 1]
 
-        cv2.imshow(file, proj_rgb)
-        cv2.waitKey(10)
+        if display:
+            cv2.imshow(file, proj_rgb)
+            cv2.waitKey(10)
 
         if forward:
             frame_id = total_frames - 1 - cursor
