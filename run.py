@@ -35,6 +35,13 @@ parser.add(
     help="If you want to process a batch of videos.",
 )
 parser.add(
+    "--dataset",
+    required=False,
+    default=False,
+    action="store_true",
+    help="Whether you want to regroup the images in a specific folder to be used as a dataset.",
+)
+parser.add(
     "--encoding_preset",
     required=False,
     type=str,
@@ -72,6 +79,14 @@ parser.add(
     "--input",
     required=True,
     help="Path to input folder.",
+)
+parser.add(
+    "--layers",
+    required=False,
+    help="How to stack the generated data for the dataset creation. (order is important). "
+         "{curr_frame, og_frame, curr_frame_y, og_frame_y, mv, mv_proj, ref}",
+    action="append",
+    default=['og_frame', 'curr_frame', 'mv_proj'],
 )
 parser.add(
     "--version",
@@ -134,21 +149,40 @@ if __name__ == "__main__":
         else:
             name += "_backward"
 
-        command = f"ffmpeg -framerate {arg_flags.fps} -pattern_type glob -i './tmp/*.png' -pix_fmt yuv444p " \
-                  f"tmp/{name}.y4m"
-
-        subprocess.run(command, shell=True)
+        name += f"_{arg_flags.gop}"
+        name += f"_{arg_flags.frame_step}"
+        name += f"_{arg_flags.encoding_preset}"
 
         image = cv2.imread("./tmp/frame_000000.png")
         h, w, _ = image.shape
 
-        command = f"./src/enc_scenario/{arg_flags.encoding_preset}.sh ./tmp/{name}.y4m {name} {w} {h} " \
-                  f"{arg_flags.fps*1000} {arg_flags.gop}"
-        a = subprocess.run(command, shell=True)
-        command = f"./aom_build/examples/inspect ./output/ivf/{name}.ivf -mv -r > ./output/json/{name}.json"
-        subprocess.run(command, shell=True)
+        if not os.path.exists(f"./output/ivf/{name}.ivf"):
 
-        main(arg_flags.gop, name, f"./tmp/{name}.y4m", w, h, arg_flags.forward)
+            command = f"ffmpeg -framerate {arg_flags.fps} -pattern_type glob -i './tmp/*.png' -pix_fmt yuv444p " \
+                      f"tmp/{name}.y4m"
+
+            subprocess.run(command, shell=True)
+
+            command = f"./src/enc_scenario/{arg_flags.encoding_preset}.sh ./tmp/{name}.y4m {name} {w} {h} " \
+                      f"{arg_flags.fps*1000} {arg_flags.gop}"
+            a = subprocess.run(command, shell=True)
+
+        if not os.path.exists(f"./output/json/{name}.json"):
+            command = f"./aom_build/examples/inspect ./output/ivf/{name}.ivf -mv -r > ./output/json/{name}.json"
+            subprocess.run(command, shell=True)
+
+        main(
+            arg_flags.gop,
+            name,
+            f"./tmp/{name}.y4m",
+            w,
+            h,
+            arg_flags.forward,
+            arg_flags.dataset,
+            arg_flags.layers,
+            arg_flags.frame_step,
+            arg_flags.encoding_preset,
+        )
 
         subprocess.run("rm -rf ./tmp/*", shell=True)
 
