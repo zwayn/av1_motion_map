@@ -23,7 +23,7 @@ from src.modules.utils import update_stack
 from src.third_party import flowpy
 
 
-def main(gop, file, video, width, height, forward, dataset, layers, step, encoding_preset, display):
+def main(gop, file, video, width, height, forward, dataset, layers, step, encoding_preset, display, interpolation):
 
     os.makedirs(f"output/results/{file}", exist_ok=True)
     os.makedirs(f"output/results/{file}/pngs", exist_ok=True)
