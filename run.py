@@ -88,6 +88,13 @@ parser.add(
     help="Path to input folder.",
 )
 parser.add(
+    "--interpolate",
+    required=False,
+    default=False,
+    action="store_true",
+    help="Compute and return the interpolation error.",
+)
+parser.add(
     "--layers",
     required=False,
     help="How to stack the generated data for the dataset creation. (order is important). "
@@ -189,7 +196,8 @@ if __name__ == "__main__":
             arg_flags.layers,
             arg_flags.frame_step,
             arg_flags.encoding_preset,
-            display=arg_flags.display,
+            arg_flags.display,
+            arg_flags.interpolate,
         )
 
         subprocess.run("rm -rf ./tmp/*", shell=True)
