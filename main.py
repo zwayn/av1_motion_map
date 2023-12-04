@@ -19,10 +19,11 @@ from src.json_processing import get_frame_data
 from src.json_processing import get_frame_motion_vectors
 from src.json_processing import read_json_file
 from src.modules.frame_type import reference_mapping
+from src.modules.utils import update_stack
 from src.third_party import flowpy
 
 
-def main(gop, file, video, width, height, forward):
+def main(gop, file, video, width, height, forward, dataset, layers, step, encoding_preset):
 
     os.makedirs(f"output/results/{file}", exist_ok=True)
     os.makedirs(f"output/results/{file}/pngs", exist_ok=True)
@@ -34,6 +35,13 @@ def main(gop, file, video, width, height, forward):
     os.makedirs(f"output/results/{file}/npy/mv_proj", exist_ok=True)
     os.makedirs(f"output/results/{file}/stack", exist_ok=True)
 
+    if dataset:
+        name = f"{encoding_preset}_{step}_{gop}"
+        for layer in layers:
+            name += f"_{layer}"
+        os.makedirs(f"/media/zoueinj/local_dataset/motion_estimation/{name}", exist_ok=True)
+        os.makedirs(f"/media/zoueinj/local_dataset/motion_estimation/{name}/{file}", exist_ok=True)
+
     cap = cv2.VideoCapture(video)
     if not cap.isOpened():
         print("Error opening video stream or file")
@@ -43,6 +51,9 @@ def main(gop, file, video, width, height, forward):
     total_frames = len(json_file)
 
     reference_dict, golden_frames = reference_mapping(0, gop, 0, [])
+
+    ret, prev_frame = cap.read()
+    prev_frame = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2YCrCb)
 
     for cursor in tqdm(range(1, total_frames-1)):
 
@@ -65,6 +76,28 @@ def main(gop, file, video, width, height, forward):
         mv_rgb = flowpy.flow_to_rgb(motion_field)
         proj_rgb = flowpy.flow_to_rgb(motion_field_projection)
 
+        if dataset:
+
+            dataset_stack = None
+            for layer in layers:
+
+                if layer == "curr_frame":
+                    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_YCrCb2RGB)
+                    dataset_stack = update_stack(dataset_stack, frame_rgb)
+                elif layer == "og_frame":
+                    frame_rgb = cv2.cvtColor(prev_frame, cv2.COLOR_YCrCb2RGB)
+                    dataset_stack = update_stack(dataset_stack, frame_rgb)
+                elif layer == "curr_frame_y":
+                    dataset_stack = update_stack(dataset_stack, frame[:, :, 0])
+                elif layer == "og_frame_y":
+                    dataset_stack = update_stack(dataset_stack, prev_frame[:, :, 0])
+                elif layer == "mv":
+                    dataset_stack = update_stack(dataset_stack, motion_field)
+                elif layer == "mv_proj":
+                    dataset_stack = update_stack(dataset_stack, motion_field_projection)
+                elif layer == "ref":
+                    dataset_stack = update_stack(dataset_stack, reference_map)
+
         stack = np.zeros((height, width, 3), dtype=np.float32)
 
         stack[:, :, 0] = frame[:, :, 0]/255.
@@ -80,11 +113,16 @@ def main(gop, file, video, width, height, forward):
         else:
             frame_id = cursor
 
-        cv2.imwrite(f"output/results/{file}/pngs/projection/{frame_id}_motion_projection.png", proj_rgb)
-        cv2.imwrite(f"output/results/{file}/pngs/reference/{frame_id}_reference_map.png", reference_map)
-        cv2.imwrite(f"output/results/{file}/pngs/mv/{frame_id}_motion_field.png", mv_rgb)
-        np.save(f"output/results/{file}/npy/mv/{frame_id}_motion_field.npy", motion_field)
-        np.save(f"output/results/{file}/npy/mv_proj/{frame_id}_motion_field_projection.npy", motion_field_projection)
-        np.save(f"output/results/{file}/stack/{frame_id}_reference_map.npy", stack)
+        cv2.imwrite(f"output/results/{file}/pngs/projection/{str(frame_id).zfill(6)}_motion_projection.png", proj_rgb)
+        cv2.imwrite(f"output/results/{file}/pngs/reference/{str(frame_id).zfill(6)}_reference_map.png", reference_map)
+        cv2.imwrite(f"output/results/{file}/pngs/mv/{str(frame_id).zfill(6)}_motion_field.png", mv_rgb)
+        np.save(f"output/results/{file}/npy/mv/{str(frame_id).zfill(6)}_motion_field.npy", motion_field)
+        np.save(f"output/results/{file}/npy/mv_proj/{str(frame_id).zfill(6)}_motion_field_projection.npy", motion_field_projection)
+        np.save(f"output/results/{file}/stack/{str(frame_id).zfill(6)}_reference_map.npy", stack)
+
+        if dataset:
+            np.save(f"/media/zoueinj/local_dataset/motion_estimation/{name}/{file}/{str(frame_id).zfill(6)}_stack.npy", dataset_stack)
+
+        prev_frame = frame.copy()
 
     cv2.destroyAllWindows()
