@@ -12,6 +12,8 @@ Functions useful for the whole project.
 
 import os
 
+import numpy as np
+
 
 def get_paths(directory: str) -> list:
     """
@@ -31,3 +33,11 @@ def get_paths(directory: str) -> list:
     paths.sort()
 
     return paths
+
+
+def update_stack(stack: np.array, layer: np.array):
+
+    if stack is None:
+        return layer
+
+    return np.dstack((stack, layer))
