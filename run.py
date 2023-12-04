@@ -42,6 +42,13 @@ parser.add(
     help="Whether you want to regroup the images in a specific folder to be used as a dataset.",
 )
 parser.add(
+    "--display",
+    required=False,
+    default=False,
+    action="store_true",
+    help="Whether to display the generated motion vectors or not.",
+)
+parser.add(
     "--encoding_preset",
     required=False,
     type=str,
@@ -182,6 +189,7 @@ if __name__ == "__main__":
             arg_flags.layers,
             arg_flags.frame_step,
             arg_flags.encoding_preset,
+            display=arg_flags.display,
         )
 
         subprocess.run("rm -rf ./tmp/*", shell=True)
