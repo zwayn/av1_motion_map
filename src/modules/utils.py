@@ -52,8 +52,8 @@ def init_csv(output_path: str, complexity_metrics: list, quality_metrics: list, 
     cols.extend(complexity_metrics)
     cols.extend(quality_metrics)
     cols.extend(motion_metrics)
-    with open(f"{output_path}log_metrics.csv", 'a') as csv_file:
-        csv_writer = csv.writer(csv_file, delimiter=';')
+    with open(f"{output_path}/log_metrics.csv", 'a') as csv_file:
+        csv_writer = csv.writer(csv_file, delimiter=',')
         csv_writer.writerow(cols)
 
 
@@ -84,6 +84,6 @@ def write_csv(output_path: str, row: list) -> None:
     :param row: row to write
     :return: None
     """
-    with open(f"{output_path}log_metrics.csv", 'a') as csv_file:
-        csv_writer = csv.writer(csv_file, delimiter=';')
+    with open(f"{output_path}/log_metrics.csv", 'a') as csv_file:
+        csv_writer = csv.writer(csv_file, delimiter=',')
         csv_writer.writerow(row)
