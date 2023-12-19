@@ -120,6 +120,7 @@ parser.add(
     "--original_mv",
     required=False,
     help="Path to the folder with original motion vectors.",
+    default="None"
 )
 parser.add(
     "--version",
