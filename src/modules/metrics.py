@@ -20,6 +20,18 @@ from ..third_party.flowpy.flowpy import forward_warp
 this_module = sys.modules[__name__]
 
 
+def cosine_similarity(original_mv: np.array, mv: np.array) -> np.array:
+    """ Cosine similarity call, based on tensorflow implementation.
+
+    :param original_mv: Original motion vector.
+    :param mv: Motion vectors out of AV1.
+    :return: Tensor with the value of the cosine similarity (mean of the values on a batch).
+    """
+
+    cosine_similarity_value = tf.reduce_mean(tf.keras.losses.cosine_similarity(original_mv, mv)).numpy()
+    return cosine_similarity_value
+
+
 def end_point_error(motion_vectors: np.ndarray, ground_truth: np.ndarray) -> float:
     """
     Compute the end-point error between the motion vectors and the ground truth.
@@ -27,7 +39,7 @@ def end_point_error(motion_vectors: np.ndarray, ground_truth: np.ndarray) -> flo
     :param ground_truth: ground truth motion vectors.
     :return: end-point error.
     """
-    return np.linalg.norm(motion_vectors - ground_truth)
+    return np.linalg.norm(ground_truth - motion_vectors)
 
 
 def interpolation_error(motion_vectors: np.ndarray, current_frame: np.ndarray, next_frame: np.ndarray) -> float:
@@ -109,6 +121,9 @@ def compute_metrics(
             value = metric_func(original)
 
         elif metric == "end_point_error":
+            value = metric_func(mv, mv_original)
+
+        elif metric == "cosine_similarity":
             value = metric_func(mv, mv_original)
 
         elif metric == "interpolation_error":
