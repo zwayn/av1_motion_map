@@ -147,6 +147,10 @@ if __name__ == "__main__":
         print(version)
         exit()
 
+    if "epe" in arg_flags.motion_metrics and not arg_flags.original_mv:
+        print("you have to specify the path to the original motion vectors.")
+        exit()
+
     if arg_flags.batch:
 
        files = os.listdir(arg_flags.input)
