@@ -37,7 +37,7 @@ parser.add(
 parser.add(
     "--complexity_metrics",
     required=False,
-    default=None,
+    default=[],
     action="append",
     help="Which Complexity metrics to use. (TV)",
 )
@@ -97,7 +97,7 @@ parser.add(
 parser.add(
     "--iqa",
     required=False,
-    default=None,
+    default=[],
     action="append",
     help="Which Quality metrics to use. (PSNR, MS-SSIM)",
 )
@@ -112,7 +112,7 @@ parser.add(
 parser.add(
     "--motion_metrics",
     required=False,
-    default=None,
+    default=[],
     action="append",
     help="Which Motion metrics to use. (epe, interpolation)",
 )
