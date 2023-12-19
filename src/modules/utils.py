@@ -26,7 +26,7 @@ def get_paths(directory: str) -> list:
     :return: list of paths of the files in the directory
     """
     paths = []
-    extensions = [".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff"]
+    extensions = [".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff", ".flo"]
     for directory_path, _, filenames in os.walk(directory):
         file_paths = [
             file for file in filenames if any(file.lower().endswith(extension) for extension in extensions)
