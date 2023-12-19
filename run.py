@@ -153,7 +153,7 @@ if __name__ == "__main__":
 
     if arg_flags.batch:
 
-       files = os.listdir(arg_flags.input)
+        files = os.listdir(arg_flags.input)
 
     else:
 
