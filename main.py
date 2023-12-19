@@ -23,8 +23,9 @@ from src.modules.frame_type import reference_mapping
 from src.modules.metrics import compute_metrics
 from src.modules.utils import init_csv
 from src.modules.utils import get_paths
-from src.modules.utils import write_csv
+from src.modules.utils import read_flo
 from src.modules.utils import update_stack
+from src.modules.utils import write_csv
 from src.third_party import flowpy
 
 
@@ -135,20 +136,22 @@ def main(
 
         if iqa or motion_metrics or complexity_metrics:
 
-            row = []
+            row = [cursor]
 
             original_frame = cv2.cvtColor(frame, cv2.COLOR_YCrCb2RGB)
             previous_frame = cv2.cvtColor(prev_frame, cv2.COLOR_YCrCb2RGB)
             encoded_frame = iio.imread(encoded_video, index=cursor, plugin="pyav")
 
             metrics = complexity_metrics + iqa + motion_metrics
+            original_motion = read_flo(originals_motion[cursor-1])
+
 
             row = compute_metrics(
                 metrics,
                 original_frame,
                 previous_frame,
                 encoded_frame,
-                originals_motion[cursor-1],
+                original_motion,
                 motion_field_projection,
                 row
             )
