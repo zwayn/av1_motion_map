@@ -14,11 +14,16 @@ import os
 import cv2
 import numpy as np
 from tqdm import tqdm
+from imageio.plugins.pyav.PyAVPlugin import read
 
 from src.json_processing import get_frame_data
 from src.json_processing import get_frame_motion_vectors
 from src.json_processing import read_json_file
 from src.modules.frame_type import reference_mapping
+from src.modules.metrics import compute_metrics
+from src.modules.utils import init_csv
+from src.modules.utils import get_paths
+from src.modules.utils import write_csv
 from src.modules.utils import update_stack
 from src.third_party import flowpy
 
@@ -63,6 +68,12 @@ def main(
         print("Error opening video stream or file")
 
     json_file = read_json_file(f"output/json/{file}.json")
+
+    if iqa or motion_metrics or complexity_metrics:
+
+        init_csv(f"output/results/{file}", complexity_metrics, iqa, motion_metrics)
+        encoded_video = f"output/ivf/{file}.ivf"
+        originals_motion = get_paths(original_motion)
 
     total_frames = len(json_file)
 
@@ -119,6 +130,28 @@ def main(
         stack[:, :, 0] = frame[:, :, 0]/255.
         stack[:, :, 1] = motion_field_projection[:, :, 0]
         stack[:, :, 2] = motion_field_projection[:, :, 1]
+
+        if iqa or motion_metrics or complexity_metrics:
+
+            row = []
+
+            original_frame = cv2.cvtColor(frame, cv2.COLOR_YCrCb2RGB)
+            previous_frame = cv2.cvtColor(prev_frame, cv2.COLOR_YCrCb2RGB)
+            encoded_frame = read(encoded_video, index=cursor)
+
+            metrics = complexity_metrics + iqa + motion_metrics
+
+            row = compute_metrics(
+                metrics,
+                original_frame,
+                previous_frame,
+                encoded_frame,
+                originals_motion[cursor-1],
+                motion_field_projection,
+                row
+            )
+
+            write_csv(f"output/results/{file}", row)
 
         if display:
             cv2.imshow(file, proj_rgb)
