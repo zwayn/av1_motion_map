@@ -19,6 +19,7 @@ import numpy as np
 def get_paths(directory: str) -> list:
     """
     Get all the paths of the files in a directory
+
     :param directory: directory to look into
     :return: list of paths of the files in the directory
     """
