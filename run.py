@@ -35,6 +35,13 @@ parser.add(
     help="If you want to process a batch of videos.",
 )
 parser.add(
+    "--complexity_metrics",
+    required=False,
+    default=None,
+    action="append",
+    help="Which Complexity metrics to use. (TV)",
+)
+parser.add(
     "--dataset",
     required=False,
     default=False,
@@ -95,12 +102,31 @@ parser.add(
     help="Compute and return the interpolation error.",
 )
 parser.add(
+    "--iqa",
+    required=False,
+    default=None,
+    action="append",
+    help="Which Quality metrics to use. (PSNR, MS-SSIM)",
+)
+parser.add(
     "--layers",
     required=False,
     help="How to stack the generated data for the dataset creation. (order is important). "
          "{curr_frame, og_frame, curr_frame_y, og_frame_y, mv, mv_proj, ref}",
     action="append",
     default=['og_frame', 'curr_frame', 'mv_proj'],
+)
+parser.add(
+    "--motion_metrics",
+    required=False,
+    default=None,
+    action="append",
+    help="Which Motion metrics to use. (epe, interpolation)",
+)
+parser.add(
+    "--original_mv",
+    required=False,
+    help="Path to the folder with original motion vectors.",
 )
 parser.add(
     "--version",
