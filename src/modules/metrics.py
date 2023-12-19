@@ -74,7 +74,8 @@ def total_variation(frame: np.ndarray) -> float:
     :param frame: motion vectors to evaluate.
     :return: total variation.
     """
-    return tf.image.total_variation(frame).numpy()
+    tensor = tf.convert_to_tensor(frame, dtype="int8")
+    return tf.image.total_variation(tensor).numpy()
 
 
 def compute_metrics(
