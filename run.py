@@ -95,13 +95,6 @@ parser.add(
     help="Path to input folder.",
 )
 parser.add(
-    "--interpolate",
-    required=False,
-    default=False,
-    action="store_true",
-    help="Compute and return the interpolation error.",
-)
-parser.add(
     "--iqa",
     required=False,
     default=None,
