@@ -221,7 +221,10 @@ if __name__ == "__main__":
             arg_flags.frame_step,
             arg_flags.encoding_preset,
             arg_flags.display,
-            arg_flags.interpolate,
+            arg_flags.iqa,
+            arg_flags.motion_metrics,
+            arg_flags.complexity_metrics,
+            arg_flags.original_mv
         )
 
         subprocess.run("rm -rf ./tmp/*", shell=True)
