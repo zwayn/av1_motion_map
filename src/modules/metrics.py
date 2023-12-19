@@ -23,9 +23,9 @@ this_module = sys.modules[__name__]
 def end_point_error(motion_vectors: np.ndarray, ground_truth: np.ndarray) -> float:
     """
     Compute the end-point error between the motion vectors and the ground truth.
-    :param motion_vectors: motion vectors to evaluate
-    :param ground_truth: ground truth motion vectors
-    :return: end-point error
+    :param motion_vectors: motion vectors to evaluate.
+    :param ground_truth: ground truth motion vectors.
+    :return: end-point error.
     """
     return np.linalg.norm(motion_vectors - ground_truth)
 
@@ -33,10 +33,10 @@ def end_point_error(motion_vectors: np.ndarray, ground_truth: np.ndarray) -> flo
 def interpolation_error(motion_vectors: np.ndarray, current_frame: np.ndarray, next_frame: np.ndarray) -> float:
     """
     Compute the interpolation error between the motion vectors and the ground truth.
-    :param motion_vectors: motion vectors to evaluate
-    :param current_frame: current frame
-    :param next_frame: next frame
-    :return: interpolation error
+    :param motion_vectors: motion vectors to evaluate.
+    :param current_frame: current frame.
+    :param next_frame: next frame.
+    :return: interpolation error.
     """
 
     interpolated_frame = forward_warp(current_frame, motion_vectors)
@@ -50,6 +50,10 @@ def ms_ssim(original_frame: np.ndarray, encoded_frame: np.ndarray) -> float:
     :param original_frame: Original Frame
     :param encoded_frame: Frame encoded in AV1
     :return: ms-ssim
+    Compute the multiscale structural similarity index between the current frame and the next frame.
+    :param original_frame: Original Frame.
+    :param encoded_frame: Frame encoded in AV1.
+    :return: ms-ssim.
     """
     return tf.image.ssim_multiscale(original_frame, encoded_frame, max_val=255).numpy()
 
@@ -57,9 +61,9 @@ def ms_ssim(original_frame: np.ndarray, encoded_frame: np.ndarray) -> float:
 def psnr(original_frame: np.ndarray, encoded_frame: np.ndarray) -> float:
     """
     Compute the peak signal-to-noise ratio between the current frame and the next frame.
-    :param original_frame: Original Frame
-    :param encoded_frame: Frame encoded in AV1
-    :return: psnr
+    :param original_frame: Original Frame.
+    :param encoded_frame: Frame encoded in AV1.
+    :return: psnr.
     """
     return tf.image.psnr(original_frame, encoded_frame, max_val=255).numpy()
 
@@ -71,8 +75,8 @@ def total_variation(frame: np.ndarray) -> float:
     Total Variation can be used as a metric to compute the complexity of a frame. It measures the amount of variation in
      pixel intensity, which can be an indicator of texture or edge complexity.
 
-    :param frame: motion vectors to evaluate
-    :return: total variation
+    :param frame: motion vectors to evaluate.
+    :return: total variation.
     """
     return tf.image.total_variation(frame).numpy()
 
