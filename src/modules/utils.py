@@ -15,6 +15,8 @@ import os
 import csv
 import numpy as np
 
+from ..third_party import flowpy
+
 
 def get_paths(directory: str) -> list:
     """
@@ -53,6 +55,18 @@ def init_csv(output_path: str, complexity_metrics: list, quality_metrics: list, 
     with open(f"{output_path}log_metrics.csv", 'a') as csv_file:
         csv_writer = csv.writer(csv_file, delimiter=';')
         csv_writer.writerow(cols)
+
+
+def read_flo(flo_path) -> np.array:
+    """
+    Read a .flo file
+
+    :param flo_path: path of the .flo file
+    :return: a numpy array
+    """
+
+    flo_map = flowpy.flow_read(flo_path)
+    return flo_map
 
 
 def update_stack(stack: np.array, layer: np.array):
