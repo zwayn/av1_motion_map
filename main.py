@@ -12,9 +12,9 @@ Main python file calling all the functions.
 import os
 
 import cv2
+import imageio.v3 as iio
 import numpy as np
 from tqdm import tqdm
-from imageio.plugins.pyav.PyAVPlugin import read
 
 from src.json_processing import get_frame_data
 from src.json_processing import get_frame_motion_vectors
@@ -139,7 +139,7 @@ def main(
 
             original_frame = cv2.cvtColor(frame, cv2.COLOR_YCrCb2RGB)
             previous_frame = cv2.cvtColor(prev_frame, cv2.COLOR_YCrCb2RGB)
-            encoded_frame = read(encoded_video, index=cursor)
+            encoded_frame = iio.imread(encoded_video, index=cursor, plugin="pyav")
 
             metrics = complexity_metrics + iqa + motion_metrics
 
