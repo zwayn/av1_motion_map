@@ -46,10 +46,6 @@ def interpolation_error(motion_vectors: np.ndarray, current_frame: np.ndarray, n
 
 def ms_ssim(original_frame: np.ndarray, encoded_frame: np.ndarray) -> float:
     """
-    Compute the multi-scale structural similarity index between the current frame and the next frame.
-    :param original_frame: Original Frame
-    :param encoded_frame: Frame encoded in AV1
-    :return: ms-ssim
     Compute the multiscale structural similarity index between the current frame and the next frame.
     :param original_frame: Original Frame.
     :param encoded_frame: Frame encoded in AV1.
