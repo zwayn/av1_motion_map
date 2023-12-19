@@ -74,6 +74,8 @@ def main(
         init_csv(f"output/results/{file}", complexity_metrics, iqa, motion_metrics)
         encoded_video = f"output/ivf/{file}.ivf"
         originals_motion = get_paths(original_motion)
+        if forward:
+            originals_motion.reverse()
 
     total_frames = len(json_file)
 
