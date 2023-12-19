@@ -9,9 +9,15 @@
 Python file used to define all the metrics used to evaluate the quality of the extracted motion vectors.
 """
 
+import sys
+
 import numpy as np
 import tensorflow as tf
+
 from ..third_party.flowpy.flowpy import forward_warp
+
+
+this_module = sys.modules[__name__]
 
 
 def end_point_error(motion_vectors: np.ndarray, ground_truth: np.ndarray) -> float:
@@ -70,3 +76,46 @@ def total_variation(frame: np.ndarray) -> float:
     """
     return tf.image.total_variation(frame).numpy()
 
+
+def compute_metrics(
+    list_metrics: list,
+    original: np.array,
+    previous: np.array,
+    tested: np.array,
+    mv_original: np.array,
+    mv: np.array,
+    row: list
+) -> list:
+    """
+    Compute metrics based on a list of metrics
+
+    :param list_metrics: list of metrics to compute.
+    :param original: original frame, from the original video.
+    :param previous: previous frame from the original video.
+    :param tested: encoded frame.
+    :param mv_original: motion vectors out of AV1.
+    :param mv: ground truth motion vectors.
+    :param row: the current csv row to complete.
+    :return: list of values out of the computed metrics.
+
+    """
+
+    for metric in list_metrics:
+
+        metric_func = getattr(this_module, metric)
+
+        if metric == "total_variation":
+            value = metric_func(original)
+
+        elif metric == "end_point_error":
+            value = metric_func(mv, mv_original)
+
+        elif metric == "interpolation_error":
+            value = metric_func(mv, original, previous)
+
+        else:
+            value = metric_func(original, tested)
+
+        row.append(value)
+
+    return row
