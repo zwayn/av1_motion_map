@@ -39,7 +39,12 @@ def end_point_error(motion_vectors: np.ndarray, ground_truth: np.ndarray) -> flo
     :param ground_truth: ground truth motion vectors.
     :return: end-point error.
     """
-    return np.linalg.norm(ground_truth - motion_vectors)
+    epe = (tf.sqrt(tf.reduce_sum((motion_vectors - ground_truth) ** 2, axis=-1)))
+    px1 = tf.cast(epe < 1, dtype=tf.float32).numpy().mean()
+    px3 = tf.cast(epe < 3, dtype=tf.float32).numpy().mean()
+    px5 = tf.cast(epe < 5, dtype=tf.float32).numpy().mean()
+    epe = tf.reduce_mean(epe).numpy()
+    return epe, px1, px3, px5
 
 
 def interpolation_error(motion_vectors: np.ndarray, current_frame: np.ndarray, next_frame: np.ndarray) -> float:
@@ -118,20 +123,20 @@ def compute_metrics(
         metric_func = getattr(this_module, metric)
 
         if metric == "total_variation":
-            value = metric_func(original)
+            value = [metric_func(original)]
 
         elif metric == "end_point_error":
             value = metric_func(mv, mv_original)
 
         elif metric == "cosine_similarity":
-            value = metric_func(mv, mv_original)
+            value = [metric_func(mv, mv_original)]
 
         elif metric == "interpolation_error":
-            value = metric_func(mv, original, previous)
+            value = [metric_func(mv, original, previous)]
 
         else:
-            value = metric_func(original, tested)
+            value = [metric_func(original, tested)]
 
-        row.append(value)
+        row += value
 
     return row
