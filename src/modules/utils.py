@@ -51,7 +51,11 @@ def init_csv(output_path: str, complexity_metrics: list, quality_metrics: list, 
     cols = ["frame_number"]
     cols.extend(complexity_metrics)
     cols.extend(quality_metrics)
-    cols.extend(motion_metrics)
+    for metric in motion_metrics:
+        if metric == "end_point_error":
+            cols.extend(["epe", "1px", "3px", "5px"])
+        else:
+            cols.append(metric)
     with open(f"{output_path}/log_metrics.csv", 'a') as csv_file:
         csv_writer = csv.writer(csv_file, delimiter=',')
         csv_writer.writerow(cols)
