@@ -160,7 +160,10 @@ if __name__ == "__main__":
 
         files = [arg_flags.input]
 
-    os.mkdir("./tmp")
+    tmp = f"tmp_{arg_flags.gop}_{arg_flags.frame_step}"
+    tmp += f"_{arg_flags.encoding_preset}_{arg_flags.cpu}"
+
+    os.mkdir(tmp)
 
     for file in files:
 
@@ -182,7 +185,7 @@ if __name__ == "__main__":
 
             frame_id = start + (cursor * direction)
 
-            shutil.copyfile(frame_list[frame_id], f"./tmp/frame_{str(cursor).zfill(6)}.png")
+            shutil.copyfile(frame_list[frame_id], f"./{tmp}/frame_{str(cursor).zfill(6)}.png")
 
         name = file_path.split("/")[-1]
         if not name:
@@ -199,17 +202,17 @@ if __name__ == "__main__":
         name += f"_{arg_flags.encoding_preset}"
         name += f"_{arg_flags.cpu}"
 
-        image = cv2.imread("./tmp/frame_000000.png")
+        image = cv2.imread(f"./{tmp}/frame_000000.png")
         h, w, _ = image.shape
 
         if not os.path.exists(f"./output/ivf/{name}.ivf"):
 
-            command = f"ffmpeg -framerate {arg_flags.fps} -pattern_type glob -i './tmp/*.png' -pix_fmt yuv444p " \
-                      f"tmp/{name}.y4m"
+            command = f"ffmpeg -framerate {arg_flags.fps} -pattern_type glob -i './{tmp}/*.png' -pix_fmt yuv444p " \
+                      f"{tmp}/{name}.y4m"
 
             subprocess.run(command, shell=True)
 
-            command = f"./src/enc_scenario/{arg_flags.encoding_preset}.sh ./tmp/{name}.y4m {name} {w} {h} " \
+            command = f"./src/enc_scenario/{arg_flags.encoding_preset}.sh ./{tmp}/{name}.y4m {name} {w} {h} " \
                       f"{arg_flags.fps*1000} {arg_flags.gop} {arg_flags.cpu}"
             a = subprocess.run(command, shell=True)
 
@@ -220,7 +223,7 @@ if __name__ == "__main__":
         main(
             arg_flags.gop,
             name,
-            f"./tmp/{name}.y4m",
+            f"./{tmp}/{name}.y4m",
             w,
             h,
             arg_flags.forward,
@@ -235,6 +238,6 @@ if __name__ == "__main__":
             arg_flags.original_mv
         )
 
-        subprocess.run("rm -rf ./tmp/*", shell=True)
+        subprocess.run(f"rm -rf ./{tmp}/*", shell=True)
 
-    subprocess.run("rm -rf ./tmp", shell=True)
+    subprocess.run(f"rm -rf ./{tmp}", shell=True)
