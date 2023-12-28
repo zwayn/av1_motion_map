@@ -42,6 +42,13 @@ parser.add(
     help="Which Complexity metrics to use. (TV)",
 )
 parser.add(
+    "--cpu",
+    required=False,
+    type=int,
+    default=6,
+    help="CPU value for AOM encoding.",
+)
+parser.add(
     "--dataset",
     required=False,
     default=False,
@@ -190,6 +197,7 @@ if __name__ == "__main__":
         name += f"_{arg_flags.gop}"
         name += f"_{arg_flags.frame_step}"
         name += f"_{arg_flags.encoding_preset}"
+        name += f"_{arg_flags.cpu}"
 
         image = cv2.imread("./tmp/frame_000000.png")
         h, w, _ = image.shape
@@ -202,7 +210,7 @@ if __name__ == "__main__":
             subprocess.run(command, shell=True)
 
             command = f"./src/enc_scenario/{arg_flags.encoding_preset}.sh ./tmp/{name}.y4m {name} {w} {h} " \
-                      f"{arg_flags.fps*1000} {arg_flags.gop}"
+                      f"{arg_flags.fps*1000} {arg_flags.gop} {arg_flags.cpu}"
             a = subprocess.run(command, shell=True)
 
         if not os.path.exists(f"./output/json/{name}.json"):
